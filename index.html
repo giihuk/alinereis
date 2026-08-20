@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Tech, IA & Comms</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text y="28" font-size="28">🤖</text></svg>'), auto; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #FFFF00; min-height: 100vh; padding: 0; overflow-x: hidden; position: relative; transition: background 0.5s ease; }
+        body.module2 { background: #f981fd; }
+        body.module3 { background: #ec019c; }
+        body.module4 { background: #FFFFFF; }
+        .asterisk-decoration { position: fixed; width: 60px; height: 60px; pointer-events: none; opacity: 0.5; z-index: 0; }
+        .asterisk-1 { top: 15%; left: 3%; animation: rotate 20s linear infinite; }
+        .asterisk-2 { bottom: 20%; right: 5%; animation: rotate -25s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .container { max-width: 1400px; margin: 0 auto; padding: 60px 40px; position: relative; z-index: 1; }
+        .header { margin-bottom: 50px; position: relative; }
+        .main-title { font-size: clamp(3.5rem, 9vw, 7rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1; color: #000; margin-bottom: 40px; position: relative; display: inline-block; }
+        .main-title::before { content: ''; position: absolute; top: -20px; left: 50px; width: 80px; height: 80px; background: #FF00FF; border-radius: 50%; z-index: -1; opacity: 0.9; }
+        .italic-style { font-style: italic; position: relative; }
+        .mobile-menu-btn { display: none; background: #000; color: #FFFF00; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; position: fixed; top: 20px; right: 20px; z-index: 1001; transition: all 0.3s ease; }
+        .mobile-menu-btn:hover { background: #FF00FF; color: #000; transform: scale(1.1); }
+        .mobile-menu-btn.active { background: #FF00FF; color: #000; }
+        .hamburger { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; height: 100%; }
+        .hamburger span { display: block; width: 25px; height: 3px; background: currentColor; margin: 3px 0; transition: all 0.3s ease; }
+        .mobile-menu-btn.active .hamburger span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .mobile-menu-btn.active .hamburger span:nth-child(2) { opacity: 0; }
+        .mobile-menu-btn.active .hamburger span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
+        .module-nav { display: flex; align-items: center; gap: 20px; margin-bottom: 50px; flex-wrap: wrap; }
+        .mobile-menu-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+        .mobile-menu-overlay.show { display: block; opacity: 1; }
+        .mobile-menu-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 90%; max-width: 400px; }
+        .mobile-menu-buttons { display: flex; flex-direction: column; gap: 20px; }
+        .mobile-menu-overlay .module-btn { width: 100%; background: #FFFF00; color: #000; border: none; padding: 18px 30px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; transform: translateY(30px); opacity: 0; animation: slideUp 0.5s ease forwards; }
+        .mobile-menu-overlay .module-btn:nth-child(1) { animation-delay: 0.1s; }
+        .mobile-menu-overlay .module-btn:nth-child(2) { animation-delay: 0.2s; }
+        .mobile-menu-overlay .module-btn:nth-child(3) { animation-delay: 0.3s; }
+        .mobile-menu-overlay .module-btn:nth-child(4) { animation-delay: 0.4s; }
+        @keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
+        .mobile-menu-overlay .module-btn:hover { background: #FF00FF; transform: scale(1.05); }
+        .mobile-menu-overlay .module-btn.active { background: #FF00FF; color: #000; border: 3px solid #FFFF00; }
+        .mobile-menu-overlay .base-prompt-global-btn { background: #000; color: #FFFF00; border: 3px solid #FFFF00; padding: 18px 30px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; margin-top: 30px; width: 100%; animation: slideUp 0.5s ease forwards; animation-delay: 0.5s; opacity: 0; }
+        .mobile-menu-overlay .base-prompt-global-btn:hover { background: #FFFF00; color: #000; transform: scale(1.05); }
+        .module-buttons { display: flex; gap: 15px; }
+        .desktop-nav { display: flex; align-items: center; gap: 20px; flex: 1; }
+        .module-btn { background: #000; color: #FFFF00; border: none; padding: 12px 25px; border-radius: 30px; font-weight: 700; font-size: 1rem; text-transform: uppercase; cursor: pointer; transition: background-color .25s ease, color .25s ease; }
+        .module-btn:hover { background: #FF00FF; color: #000; }
+        .module-btn.active { background: #FFF; color: #000; border: 2px solid #000; }
+        .base-prompt-global-btn { background: #FF00FF; color: #000; border: 3px solid #000; padding: 12px 25px; border-radius: 30px; font-weight: 700; font-size: 1rem; text-transform: uppercase; cursor: pointer; transition: background-color .25s ease, color .25s ease; margin-left: auto; display: none; }
+        .base-prompt-global-btn.show { display: block; }
+        .base-prompt-global-btn:hover { background: #000; color: #FFFF00; transform: scale(1.05); }
+        .module-content { display: none; }
+        .module-content.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .prompts-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+        .prompt-card { background: #000; border-radius: 20px; padding: 4px; position: relative; box-shadow: 12px 12px 0 #000; transition: transform .25s ease, box-shadow .25s ease; }
+        .prompt-card:hover { transform: translate(-4px, -4px); box-shadow: 16px 16px 0 #000; }
+        .prompt-inner { background: #F5F5F5; border-radius: 16px; padding: 25px; min-height: 500px; height: 500px; position: relative; display: flex; flex-direction: column; }
+        .prompt-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .prompt-title { font-size: 1.3rem; font-weight: 900; color: #000; line-height: 1.2; text-transform: uppercase; flex: 1; }
+        .prompt-text { font-family: 'Courier New', monospace; font-size: 0.9rem; line-height: 1.8; color: #000; white-space: pre-wrap; word-wrap: break-word; flex: 1; padding: 20px 0; overflow-y: auto; max-height: 400px; }
+        .prompt-text::-webkit-scrollbar { width: 10px; }
+        .prompt-text::-webkit-scrollbar-track { background: transparent; border-radius: 10px; }
+        .prompt-text::-webkit-scrollbar-thumb { background: #FF00FF; border-radius: 10px; }
+        .copy-button { position: absolute; bottom: 20px; right: 20px; background: #000; color: #FFFF00; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .copy-button:hover { background: #FF00FF; transform: scale(1.1); }
+        .copy-button.copied { background: #00FF00; color: #000; }
+        .copy-button svg { width: 22px; height: 22px; }
+        .single-prompt-container { width: 100%; }
+        .single-prompt-card { position: relative; background: transparent; border-radius: 20px; padding: 4px; }
+        .single-prompt-card::before { content: ""; position: absolute; inset: 0; border-radius: 20px; background: #000; transform: translate(12px, 12px); transition: transform .25s ease; z-index: -1; }
+        .single-prompt-inner { position: relative; z-index: 1; background: #F5F5F5; border-radius: 16px; padding: 40px; border: 4px solid #000; }
+        .single-prompt-card:hover::before { transform: translate(16px, 16px); }
+        .single-prompt-text { font-family: 'Courier New', monospace; font-size: 1rem; line-height: 1.8; color: #000; white-space: pre-wrap; word-wrap: break-word; max-height: 500px; overflow-y: auto; }
+        .single-prompt-text::-webkit-scrollbar { width: 10px; }
+        .single-prompt-text::-webkit-scrollbar-thumb { background: #FF00FF; border-radius: 10px; }
+        .cta-rounded { display: inline-block; margin-top: 24px; background: #000; color: #FFFF00; padding: 14px 22px; border-radius: 9999px; font-weight: 500; text-decoration: none; border: 2px solid #000; transition: background-color .25s ease, color .25s ease; }
+        .cta-rounded:hover { background: #FF00FF; color: #000; }
+        .card-link { display: inline-block; margin-top: 12px; margin-bottom: 50px; color: #000; font-weight: 700; text-decoration: underline; font-size: 0.9rem; }
+        .card-link:hover { color: #FF00FF; }
+        .links-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; margin-top: 40px; }
+        .link-card { border-radius: 20px; padding: 40px 35px; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 250px; }
+        .link-card.black { background: #000; color: #FFF; }
+        .link-card.magenta { background: #FF00FF; color: #FFF; }
+        .link-card.pink { background: #FF6FBE; color: #000; }
+        .link-card.yellow { background: #FFFF00; color: #000; border: 3px solid #FF00FF; }
+        .link-title { font-size: 2rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; letter-spacing: -0.02em; line-height: 0.9; }
+        .link-description { font-size: 1.15rem; line-height: 1.4; margin-bottom: 30px; flex-grow: 1; }
+        .link-button { background: #FFFF00; color: #000; border: none; padding: 18px 35px; border-radius: 50px; font-weight: 700; text-decoration: none; display: inline-block; transition: background-color .25s ease, color .25s ease; cursor: pointer; font-size: 1rem; text-align: center; }
+        .link-card.magenta .link-button { background: #000; color: #FFF; }
+        .link-card.pink .link-button { background: #000; color: #FFF; border-radius: 10px; width: 100%; padding: 25px; font-size: 1.1rem; }
+        .link-card.yellow .link-button { background: #FF00FF; color: #000; border-radius: 10px; width: 100%; padding: 20px; word-break: break-all; font-size: 0.95rem; }
+        .link-button:hover { background: #FF00FF; color: #000; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); animation: fadeIn 0.3s ease; }
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: #FFFF00; border: 4px solid #000; padding: 40px; max-width: 700px; width: 90%; max-height: 80vh; position: relative; animation: slideUpModal 0.3s ease; }
+        @keyframes slideUpModal { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .modal-title { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; color: #000; }
+        .close-modal { background: #000; color: #FFFF00; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .close-modal:hover { background: #FF00FF; transform: rotate(90deg); }
+        .modal-text { background: #FFF; border: 2px solid #000; padding: 25px; font-family: 'Courier New', monospace; font-size: 1rem; line-height: 1.8; color: #000; max-height: 400px; overflow-y: auto; white-space: pre-wrap; }
+        .copy-modal-btn { margin-top: 20px; background: #000; color: #FFFF00; border: none; padding: 15px 30px; font-weight: 700; font-size: 1rem; text-transform: uppercase; cursor: pointer; transition: all 0.2s ease; width: 100%; }
+        .copy-modal-btn:hover { background: #FF00FF; color: #000; }
+        .copy-modal-btn.copied { background: #00FF00; color: #000; }
+        @media (max-width: 1200px) { .prompts-wrapper { grid-template-columns: repeat(2, 1fr); } .links-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 768px) { .container { padding: 80px 20px 30px 20px; } .main-title { font-size: clamp(2.5rem, 10vw, 4rem); } .mobile-menu-btn { display: flex; } .module-nav { display: none; } .prompts-wrapper { grid-template-columns: 1fr; gap: 30px; } .prompt-inner { min-height: 350px; height: auto; } .links-grid { grid-template-columns: 1fr !important; } }
+        @media (min-width: 1200px) { .links-grid { grid-template-columns: repeat(4, 1fr) !important; } }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+        <div class="hamburger"><span></span><span></span><span></span></div>
+    </button>
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay">
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-buttons">
+                <button class="module-btn active" onclick="switchModuleMobile(1)">MÓDULO 1</button>
+                <button class="module-btn" onclick="switchModuleMobile(2)">MÓDULO 2</button>
+                <button class="module-btn" onclick="switchModuleMobile(3)">MÓDULO 3</button>
+                <button class="module-btn" onclick="switchModuleMobile(4)">LINKS</button>
+            </div>
+            <button class="base-prompt-global-btn show" onclick="openModalFromMobile()">Prompt Base</button>
+        </div>
+    </div>
+    <svg class="asterisk-decoration asterisk-1" viewBox="0 0 100 100"><path d="M50 10 L50 90 M10 50 L90 50 M25 25 L75 75 M75 25 L25 75" stroke="#FF00FF" stroke-width="4" fill="none"/></svg>
+    <svg class="asterisk-decoration asterisk-2" viewBox="0 0 100 100"><path d="M50 10 L50 90 M10 50 L90 50 M25 25 L75 75 M75 25 L25 75" stroke="#000" stroke-width="4" fill="none"/></svg>
+
+    <div class="container">
+        <header class="header">
+            <h1 class="main-title">Workshop Tech, IA & Comms</h1>
+        </header>
+        <div class="module-nav">
+            <div class="desktop-nav">
+                <div class="module-buttons">
+                    <button class="module-btn active" onclick="switchModule(1)">MÓDULO 1</button>
+                    <button class="module-btn" onclick="switchModule(2)">MÓDULO 2</button>
+                    <button class="module-btn" onclick="switchModule(3)">MÓDULO 3</button>
+                    <button class="module-btn" onclick="switchModule(4)">LINKS</button>
+                </div>
+                <button class="base-prompt-global-btn show" onclick="openModal()">Prompt Base</button>
+            </div>
+        </div>
+
+        <!-- Module 1: Press Release 2.0 -->
+        <div id="module1" class="module-content active">
+            <div class="prompts-wrapper">
+                <div class="prompt-card">
+                    <div class="prompt-inner">
+                        <div class="prompt-header">
+                            <h2 class="prompt-title">Agência Pará — Detran Digital</h2>
+                        </div>
+                        <div class="prompt-text">Você é um profissional de comunicação pública especializado em transformar conteúdo institucional em experiências digitais modernas para o cidadão.
+
+Analise a notícia em PDF anexo e crie uma landing page completa em HTML + CSS que transforme essa informação em uma página clara e útil para a população.
+
+ESTRUTURA OBRIGATÓRIA:
+— Hero: Headline reescrita de forma direta e acessível (sem jargão de governo)
+— Destaque acionável: quais serviços mudaram, como acessar, o que o cidadão precisa fazer
+— 3 pontos-chave em cards visuais
+— CTA claro: onde acessar o serviço online ou presencialmente
+
+VISUAL: Cores institucionais do Governo do Pará (consulte as cores oficiais do site agenciapara.com.br), branco e cinza, ícones Unicode (📍 🚗 📱 ✅)
+
+Notícia: "No Pará, Detran moderniza atendimento e garante aos usuários mais agilidade no acesso aos serviços"
+Fonte: Agência Pará</div>
+                        <a class="card-link" href="https://agenciapara.com.br/noticia/77786/no-para-detran-moderniza-atendimento-e-garante-aos-usuarios-mais-agilidade-no-acesso-aos-servicos" target="_blank">Ver matéria</a>
+                        <button class="copy-button" onclick="copyPrompt(this)" title="Copiar prompt">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="prompt-card">
+                    <div class="prompt-inner">
+                        <div class="prompt-header">
+                            <h2 class="prompt-title">Mapa — Plano Safra 2026/2027</h2>
+                        </div>
+                        <div class="prompt-text">Você é um profissional de comunicação pública especializado em transformar conteúdo institucional em experiências digitais modernas para o cidadão.
+
+Analise a notícia em PDF anexo e crie uma landing page completa em HTML + CSS que traduza o Plano Safra em uma página clara e útil para o produtor rural.
+
+ESTRUTURA OBRIGATÓRIA:
+— Hero: Headline reescrita de forma direta e acessível (sem jargão técnico ou de governo)
+— Destaque acionável: valores, linhas de crédito, quem pode acessar e como
+— 3 pontos-chave em cards visuais
+— CTA claro: onde o produtor busca mais informações ou contrata o crédito
+
+VISUAL: Verde e amarelo do Governo Federal (predominante), branco e cinza, ícones Unicode (🌱 🚜 💰 ✅)
+
+Notícia: "Governo Federal lança Plano Safra 2026/2027 de R$ 525,1 bilhões"
+Fonte: Ministério da Agricultura e Pecuária (Mapa)</div>
+                        <a class="card-link" href="https://agenciabrasil.ebc.com.br/economia/noticia/2026-06/governo-federal-lanca-plano-safra-20262027-de-r-5251-bilhoes" target="_blank">Ver matéria</a>
+                        <button class="copy-button" onclick="copyPrompt(this)" title="Copiar prompt">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="prompt-card">
+                    <div class="prompt-inner">
+                        <div class="prompt-header">
+                            <h2 class="prompt-title">Governo de Alagoas — Gás do Povo</h2>
+                        </div>
+                        <div class="prompt-text">Você é um profissional de comunicação pública especializado em transformar conteúdo institucional em experiências digitais modernas para o cidadão.
+
+Analise a notícia em PDF anexo e crie uma landing page completa em HTML + CSS que transforme essa informação em uma página clara e útil para a população.
+
+ESTRUTURA OBRIGATÓRIA:
+— Hero: Headline reescrita de forma direta e acessível (sem jargão de governo)
+— Destaque acionável: quem tem direito, como se cadastrar, onde retirar o benefício
+— 3 pontos-chave em cards visuais
+— CTA claro: onde o cidadão se informa ou faz o cadastro
+
+VISUAL: Cores institucionais do Governo de Alagoas (consulte as cores oficiais do site alagoas.al.gov.br), branco e cinza, ícones Unicode (📍 🔥 📋 ✅)
+
+Notícia: "Alagoas vai receber R$ 37,1 milhões do Governo Federal para o programa Gás do Povo"
+Fonte: Governo do Estado de Alagoas</div>
+                        <a class="card-link" href="https://alagoas.al.gov.br/noticia/alagoas-vai-receber-371-milhoes-do-governo-federal-para-o-programa-gas-do-povo" target="_blank">Ver matéria</a>
+                        <button class="copy-button" onclick="copyPrompt(this)" title="Copiar prompt">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 2: Apps (Vibecoding) -->
+        <div id="module2" class="module-content">
+            <div class="single-prompt-container">
+                <div class="single-prompt-card">
+                    <div class="single-prompt-inner">
+                        <div class="single-prompt-text">Crie o código completo (HTML, CSS e JavaScript em um único arquivo) para uma aplicação web responsiva chamada "Assistente de Conteúdo IA".
+
+Funcionalidades Essenciais:
+
+📄 Upload de PDF: Interface para o usuário enviar um arquivo PDF.
+
+🔍 Extração de Texto: Use a biblioteca pdf.js (via CDN) para extrair o conteúdo do PDF.
+
+🤖 Geração com IA: Envie o texto extraído para uma API de IA (Gemini) e solicite a criação de 4 formatos de conteúdo:
+- Post para Instagram
+- Card informativo para WhatsApp
+- Roteiro para vídeo curto (Reels/TikTok)
+- Release para a imprensa regional
+
+📱 Visualização em Mockups: Exiba cada resultado dentro de um mockup visual que simule a aparência da plataforma correspondente.
+
+🎨 Estilização: Utilize Tailwind CSS (via CDN) para criar um design limpo e moderno.
+
+💡 Para testar: use a notícia "Governo do Tocantins firma parceria com programa Terra Viva e garante R$ 8 milhões anuais para investimentos no campo" (to.gov.br/secom).</div>
+                        <a class="cta-rounded" href="https://g.co/gemini/share/461ea0f23b57" target="_blank">Ver app gerador de posts</a>
+                        <button class="copy-button" onclick="copyPrompt(this)" title="Copiar prompt">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 3: Podcast com NotebookLM -->
+        <div id="module3" class="module-content">
+            <div class="single-prompt-container">
+                <div class="single-prompt-card">
+                    <div class="single-prompt-inner">
+                        <div class="single-prompt-text">Objetivo: Criar um podcast que informe o cidadão sobre programas e serviços do Governo do Maranhão com base em notícias oficiais — exemplo: "Governo do Maranhão abre 100 bolsas de intercâmbio para estudantes da rede pública".
+
+Formato: Diálogo entre Apresentador (voz do governo) e Especialista (voz da secretaria responsável pelo programa).
+
+Conteúdo Mandatório: Cobrir os principais pontos da notícia, quem tem direito, prazos e como o cidadão participa ou acessa o benefício.
+
+Tom de Voz: Próximo, acessível e informativo — como se estivesse explicando para um vizinho. Evitar jargão de governo e termos técnicos.
+
+CTA (Call to Action): O final precisa deixar claro o que o ouvinte deve fazer ou onde buscar mais informações (site ou canais oficiais do governo).</div>
+                        <a class="cta-rounded" href="https://notebooklm.google.com/" target="_blank">Abrir NotebookLM</a>
+                        <button class="copy-button" onclick="copyPrompt(this)" title="Copiar prompt">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 4: Links -->
+        <div id="module4" class="module-content">
+            <div class="links-grid">
+                <div class="link-card black">
+                    <div><h3 class="link-title">GEMINI</h3><p class="link-description">Gemini Pro grátis por <strong>1 ano</strong> para estudantes.</p></div>
+                    <a href="https://gemini.google/students" target="_blank" class="link-button">Saiba mais</a>
+                </div>
+                <div class="link-card black">
+                    <div><h3 class="link-title">GOOGLE SKILLSHOP</h3><p class="link-description">Certificações gratuitas em Ads, Analytics e Marketing Digital.</p></div>
+                    <a href="https://skillshop.withgoogle.com/" target="_blank" class="link-button">Saiba mais</a>
+                </div>
+                <div class="link-card black">
+                    <div><h3 class="link-title">GOOGLE GROW</h3><p class="link-description">Fundamentos de IA generativa, Google Workspace e Cloud Computing.</p></div>
+                    <a href="https://grow.google/" target="_blank" class="link-button">Saiba mais</a>
+                </div>
+                <div class="link-card black">
+                    <div><h3 class="link-title">GOOGLE CLOUD TRAINING</h3><p class="link-description">Trilhas completas de Machine Learning & AI com skill badges reconhecidos pela indústria.</p></div>
+                    <a href="https://cloud.google.com/training" target="_blank" class="link-button">Saiba mais</a>
+                </div>
+                <div class="link-card black">
+                    <div><h3 class="link-title">OPENAI ACADEMY</h3><p class="link-description">Conteúdos oficiais e cursos de boas práticas em IA aplicada.</p></div>
+                    <a href="https://academy.openai.com/" target="_blank" class="link-button">Saiba mais</a>
+                </div>
+                <div class="link-card black">
+                    <div><h3 class="link-title">CURSO OFICIAL NO COURSERA</h3><p class="link-description">Opção de auxílio financeiro disponível para quem não puder pagar o certificado.</p></div>
+                    <a href="https://coursera.org/specializations/ai-essentials-google" target="_blank" class="link-button">Saiba mais</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Prompt Base Press Release 2.0 -->
+    <div id="promptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Prompt Base</h3>
+                <button class="close-modal" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-text">Você é um profissional de comunicação pública especializado em transformar conteúdo institucional em experiências digitais modernas para o cidadão.
+
+Analise a notícia em PDF anexo e crie uma landing page completa em HTML + CSS que transforme essa informação em uma página clara e útil para a população.
+
+ESTRUTURA OBRIGATÓRIA:
+— Hero: Headline reescrita de forma direta e acessível (sem jargão de governo)
+— Destaque acionável: datas, prazos, quem tem direito, como acessar ou participar
+— 3 pontos-chave em cards visuais
+— CTA claro: onde o cidadão se informa, se cadastra ou acessa o serviço
+
+VISUAL: Cores institucionais do órgão (predominante), branco e cinza, ícones Unicode (📍 📅 📞 ✅)</div>
+            <button class="copy-modal-btn" onclick="copyBasePrompt(this)">Copiar Prompt Base</button>
+        </div>
+    </div>
+
+    <script>
+        let currentModule = 1;
+        let isMobileMenuOpen = false;
+        function toggleMobileMenu() {
+            isMobileMenuOpen = !isMobileMenuOpen;
+            const btn = document.getElementById('mobileMenuBtn');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            if (isMobileMenuOpen) { btn.classList.add('active'); overlay.classList.add('show'); document.body.style.overflow = 'hidden'; }
+            else { btn.classList.remove('active'); overlay.classList.remove('show'); document.body.style.overflow = 'auto'; }
+        }
+        function closeMobileMenu() {
+            isMobileMenuOpen = false;
+            document.getElementById('mobileMenuBtn').classList.remove('active');
+            document.getElementById('mobileMenuOverlay').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+        function switchModuleMobile(n) { switchModule(n); closeMobileMenu(); }
+        function openModalFromMobile() { closeMobileMenu(); openModal(); }
+        function switchModule(moduleNumber) {
+            currentModule = moduleNumber;
+            document.body.className = moduleNumber === 2 ? 'module2' : moduleNumber === 3 ? 'module3' : moduleNumber === 4 ? 'module4' : '';
+            document.querySelectorAll('.module-nav .module-btn').forEach((btn, i) => btn.classList.toggle('active', i === moduleNumber - 1));
+            document.querySelectorAll('.mobile-menu-overlay .module-btn').forEach((btn, i) => btn.classList.toggle('active', i === moduleNumber - 1));
+            const promptBaseBtn = document.querySelector('.module-nav .base-prompt-global-btn');
+            moduleNumber === 1 ? promptBaseBtn.classList.add('show') : promptBaseBtn.classList.remove('show');
+            const mobilePromptBtn = document.querySelector('.mobile-menu-overlay .base-prompt-global-btn');
+            mobilePromptBtn.style.display = moduleNumber === 1 ? 'block' : 'none';
+            document.querySelectorAll('.module-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('module' + moduleNumber).classList.add('active');
+        }
+        function copyPrompt(button) {
+            const promptText = button.parentElement.querySelector('.prompt-text, .single-prompt-text').textContent;
+            navigator.clipboard.writeText(promptText.trim()).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                }, 2000);
+            });
+        }
+        function openModal() { document.getElementById('promptModal').classList.add('show'); document.body.style.overflow = 'hidden'; }
+        function closeModal() { document.getElementById('promptModal').classList.remove('show'); document.body.style.overflow = 'auto'; }
+        function copyBasePrompt(button) {
+            const basePrompt = document.querySelector('.modal-text').textContent;
+            navigator.clipboard.writeText(basePrompt.trim()).then(() => {
+                button.classList.add('copied'); button.textContent = 'Copiado!';
+                setTimeout(() => { button.classList.remove('copied'); button.textContent = 'Copiar Prompt Base'; }, 2000);
+            });
+        }
+        window.onclick = function(event) {
+            const modal = document.getElementById('promptModal');
+            const mobileOverlay = document.getElementById('mobileMenuOverlay');
+            if (event.target == modal) closeModal();
+            if (event.target == mobileOverlay) closeMobileMenu();
+        }
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.prompt-card').forEach((card, i) => {
+                card.style.opacity = '0'; card.style.transform = 'translateY(30px)';
+                setTimeout(() => { card.style.transition = 'all 0.5s ease'; card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, i * 150);
+            });
+        });
+    </script>
+</body>
+</html>
